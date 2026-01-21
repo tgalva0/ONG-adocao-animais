@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adoções Pendentes - Funcionário</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        /* Reutilizando estilos de layout */
+        .container-admin { display: flex; min-height: 100vh; background-color: #f7eee3; }
+        .admin-sidebar { width: 250px; background-color: #e75d8b; color: white; padding: 20px 0; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 1000; }
+        .admin-content { flex-grow: 1; padding: 30px; text-align: left; margin-left: 250px; min-height: 100vh; background-color: #f7eee3; }
+        .admin-sidebar h2 { color: white; font-family: 'Sour Gummy'; text-align: center; margin-bottom: 30px; padding: 0 10px; }
+        .admin-sidebar ul { list-style: none; padding: 0; }
+        .admin-sidebar ul li a { display: block; padding: 15px 20px; text-decoration: none; color: white; font-weight: bold; font-family: 'Nunito', Arial, sans-serif; transition: background-color 0.3s ease; }
+        .admin-sidebar ul li a:hover, .admin-sidebar ul li.active a { background-color: #e43a72; color: #fff; }
+
+        /* Estilos específicos */
+        .badge-status { padding: 5px 10px; border-radius: 15px; color: white; font-weight: bold; font-size: 0.9em; }
+        .bg-pendente { background-color: #f39c12; }
+        
+        /* Card de Detalhes (Base) */
+        .details-card {
+            background-color: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: none; /* Começa oculto */
+        }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        /* Cores Específicas */
+        .user-card { border-left: 5px solid #e75d8b; } /* Rosa para Usuário */
+        .animal-card { border-left: 5px solid #3498db; } /* Azul para Animal */
+        
+        .user-card h4 { color: #e75d8b; margin-bottom: 15px; }
+        .animal-card h4 { color: #3498db; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container-admin">
+        
+        <aside class="admin-sidebar">
+            <h2>Área do Funcionário</h2>
+            <nav>
+                <ul>
+                    <li><a href="funcionario_animais.html">Gerenciar Animais</a></li>
+                    <li class="active"><a href="funcionario_adocoes.html">Adoções Pendentes</a></li> 
+                    <li><a href="funcionario_perfil.html">Meus Dados</a></li>
+                    <li><a href="#" onclick="logout()">Sair</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <h1 class="titulo-login">Análise de Adoções</h1>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <section class="admin-form-container mb-4 p-4 h-100">
+                        <h3>Consultar Solicitante</h3>
+                        <form id="form-busca-usuario-info" class="d-flex gap-2 align-items-end">
+                            <div class="flex-grow-1">
+                                <label class="form-label mb-1">ID Usuário:</label>
+                                <input type="number" id="idUsuarioInfo" class="form-control" placeholder="ID" min="1">
+                            </div>
+                            <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="limparBusca('usuario')">Limpar</button>
+                        </form>
+
+                        <div id="detalhes-usuario" class="details-card user-card">
+                            <h4>Dados do Solicitante</h4>
+                            <div class="info-grid">
+                                <p><strong>Nome:</strong> <span id="u-nome">-</span></p>
+                                <p><strong>Email:</strong> <span id="u-email">-</span></p>
+                                <p><strong>CPF:</strong> <span id="u-cpf">-</span></p>
+                                <p><strong>Tipo:</strong> <span id="u-tipo">-</span></p>
+                            </div>
+                        </div>
+                        <div id="erro-usuario" class="mt-2 text-danger" style="display: none;"></div>
+                    </section>
+                </div>
+
+                <div class="col-md-6">
+                    <section class="admin-form-container mb-4 p-4 h-100">
+                        <h3>Consultar Animal</h3>
+                        <form id="form-busca-animal-info" class="d-flex gap-2 align-items-end">
+                            <div class="flex-grow-1">
+                                <label class="form-label mb-1">ID Animal:</label>
+                                <input type="number" id="idAnimalInfo" class="form-control" placeholder="ID" min="1">
+                            </div>
+                            <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="limparBusca('animal')">Limpar</button>
+                        </form>
+
+                        <div id="detalhes-animal" class="details-card animal-card">
+                            <h4>Dados do Animal</h4>
+                            <div class="info-grid">
+                                <p><strong>Nome:</strong> <span id="a-nome">-</span></p>
+                                <p><strong>Espécie:</strong> <span id="a-especie">-</span></p>
+                                <p><strong>Raça:</strong> <span id="a-raca">-</span></p>
+                                <p><strong>Status:</strong> <span id="a-status">-</span></p>
+                                <p><strong>Idade:</strong> <span id="a-idade">-</span></p>
+                                <p><strong>Doença:</strong> <span id="a-doenca">-</span></p>
+                            </div>
+                        </div>
+                        <div id="erro-animal" class="mt-2 text-danger" style="display: none;"></div>
+                    </section>
+                </div>
+            </div>
+
+            <section class="admin-table-container mt-4">
+                <h2>Solicitações Em Andamento</h2>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div id="status-mensagem" style="color: blue;">Carregando solicitações...</div>
+                    <button class="btn btn-sm btn-secondary" onclick="listarAdocoesPendentes()">Atualizar Lista</button>
+                </div>
+
+                <table id="tabela-adocoes" class="tabela-eventos mx-auto">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Data</th>
+                            <th>Animal (ID)</th>
+                            <th>Solicitante (ID)</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/adocao'; 
+        const API_ADOCOES = `${API_BASE_URL}/adocoes`;
+        const API_USUARIOS = `${API_BASE_URL}/usuarios`;
+        const API_ANIMAIS = `${API_BASE_URL}/animais`;
+
+        // --- UTILITÁRIOS ---
+        function logout() {
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = '../login.html';
+        }
+
+        function checkFuncionario() {
+            const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+            if (!usuarioLogado || (usuarioLogado.tipoUsuario !== 'funcionario' && usuarioLogado.tipoUsuario !== 'administrador')) {
+                alert('Acesso negado.');
+                window.location.href = 'login.html';
+            }
+        }
+
+        function formatarData(dataISO) {
+            if (!dataISO) return 'N/D';
+            const [ano, mes, dia] = dataISO.split('-');
+            return `${dia}/${mes}/${ano}`;
+        }
+
+        // --- LÓGICA DE BUSCA (USUÁRIO E ANIMAL) ---
+
+        async function buscarInfoUsuario(id) {
+            const card = document.getElementById('detalhes-usuario');
+            const erroDiv = document.getElementById('erro-usuario');
+            card.style.display = 'none';
+            erroDiv.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_USUARIOS}/${id}`);
+                if (response.status === 404) throw new Error('Usuário não encontrado.');
+                const usuario = await response.json();
+
+                document.getElementById('u-nome').textContent = usuario.nome;
+                document.getElementById('u-email').textContent = usuario.email;
+                document.getElementById('u-cpf').textContent = usuario.cpf;
+                document.getElementById('u-tipo').textContent = usuario.tipoUsuario;
+                
+                card.style.display = 'block';
+            } catch (error) {
+                erroDiv.textContent = error.message;
+                erroDiv.style.display = 'block';
+            }
+        }
+
+        async function buscarInfoAnimal(id) {
+            const card = document.getElementById('detalhes-animal');
+            const erroDiv = document.getElementById('erro-animal');
+            card.style.display = 'none';
+            erroDiv.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_ANIMAIS}/${id}`);
+                if (response.status === 404) throw new Error('Animal não encontrado.');
+                const animal = await response.json();
+
+                document.getElementById('a-nome').textContent = animal.nomeAnimal;
+                document.getElementById('a-especie').textContent = animal.especie;
+                document.getElementById('a-raca').textContent = animal.raca;
+                document.getElementById('a-status').textContent = animal.status ? 'Disponível' : 'Indisponível';
+                document.getElementById('a-idade').textContent = animal.idade + ' anos';
+                document.getElementById('a-doenca').textContent = animal.doenca || 'Nenhuma';
+
+                card.style.display = 'block';
+            } catch (error) {
+                erroDiv.textContent = error.message;
+                erroDiv.style.display = 'block';
+            }
+        }
+
+        function limparBusca(tipo) {
+            if (tipo === 'usuario') {
+                document.getElementById('idUsuarioInfo').value = '';
+                document.getElementById('detalhes-usuario').style.display = 'none';
+                document.getElementById('erro-usuario').style.display = 'none';
+            } else {
+                document.getElementById('idAnimalInfo').value = '';
+                document.getElementById('detalhes-animal').style.display = 'none';
+                document.getElementById('erro-animal').style.display = 'none';
+            }
+        }
+
+        // --- LÓGICA TABELA ---
+
+        async function listarAdocoesPendentes() {
+            const tbody = document.querySelector('#tabela-adocoes tbody');
+            const statusDiv = document.getElementById('status-mensagem');
+            tbody.innerHTML = '';
+            statusDiv.textContent = 'Buscando solicitações...';
+
+            try {
+                const response = await fetch(API_ADOCOES); 
+                if (!response.ok) throw new Error("Erro ao buscar dados");
+                const todasAdocoes = await response.json();
+                const pendentes = todasAdocoes.filter(a => a.status === 'Em Andamento');
+
+                if (pendentes.length === 0) {
+                    statusDiv.textContent = 'Nenhuma solicitação pendente.';
+                    return;
+                }
+                statusDiv.textContent = `${pendentes.length} solicitação(ões) aguardando.`;
+
+                pendentes.forEach(adocao => {
+                    const row = tbody.insertRow();
+                    
+                    row.insertCell().textContent = adocao.idAdocao;
+                    row.insertCell().textContent = formatarData(adocao.dataAdocao);
+                    
+                    // COLUNA ANIMAL (Com botão Ver)
+                    const animalCell = row.insertCell();
+                    animalCell.innerHTML = `
+                        <strong>${adocao.idAnimal}</strong>
+                        <button class="btn btn-sm btn-outline-primary ms-2 py-0" 
+                                onclick="preencherBusca('animal', ${adocao.idAnimal})">Ver</button>
+                    `;
+                    
+                    // COLUNA USUÁRIO (Com botão Ver)
+                    const userCell = row.insertCell();
+                    userCell.innerHTML = `
+                        <strong>${adocao.idUsuario}</strong>
+                        <button class="btn btn-sm btn-outline-primary ms-2 py-0" 
+                                onclick="preencherBusca('usuario', ${adocao.idUsuario})">Ver</button>
+                    `;
+
+                    row.insertCell().innerHTML = `<span class="badge-status bg-pendente">${adocao.status}</span>`;
+                    
+                    const acoesCell = row.insertCell();
+                    acoesCell.innerHTML = `
+                        <button class="btn btn-sm btn-success me-1" onclick="processarAdocao(${adocao.idAdocao}, 'Deferido')">Aceitar</button>
+                        <button class="btn btn-sm btn-danger" onclick="processarAdocao(${adocao.idAdocao}, 'Indeferido')">Recusar</button>
+                    `;
+                });
+
+            } catch (error) {
+                statusDiv.textContent = `Erro: ${error.message}`;
+            }
+        }
+
+        // Atalho para os botões da tabela
+        function preencherBusca(tipo, id) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (tipo === 'usuario') {
+                document.getElementById('idUsuarioInfo').value = id;
+                buscarInfoUsuario(id);
+            } else {
+                document.getElementById('idAnimalInfo').value = id;
+                buscarInfoAnimal(id);
+            }
+        }
+
+        async function processarAdocao(id, novoStatus) {
+            const acao = novoStatus === 'Deferido' ? 'ACEITAR' : 'RECUSAR';
+            if (!confirm(`Confirma ${acao} a adoção ID ${id}?`)) return;
+
+            try {
+                const getResponse = await fetch(`${API_ADOCOES}/${id}`);
+                const adocaoAtual = await getResponse.json();
+                adocaoAtual.status = novoStatus;
+
+                const putResponse = await fetch(`${API_ADOCOES}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(adocaoAtual)
+                });
+
+                if (putResponse.ok) {
+                    alert(`Sucesso! Adoção marcada como ${novoStatus}.`);
+                    listarAdocoesPendentes(); 
+                } else {
+                    const erro = await putResponse.json();
+                    alert(`Erro: ${erro.error}`);
+                }
+            } catch (error) { alert(`Erro: ${error.message}`); }
+        }
+
+        // --- HANDLERS FORMULÁRIOS ---
+        document.getElementById('form-busca-usuario-info').addEventListener('submit', e => {
+            e.preventDefault();
+            buscarInfoUsuario(document.getElementById('idUsuarioInfo').value);
+        });
+
+        document.getElementById('form-busca-animal-info').addEventListener('submit', e => {
+            e.preventDefault();
+            buscarInfoAnimal(document.getElementById('idAnimalInfo').value);
+        });
+
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            checkFuncionario();
+            listarAdocoesPendentes();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Adote - Animais do Bem</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .btn-adotar { width: 100%; margin-top: 10px; font-weight: bold; }
+        .status-text { font-weight: bold; display: block; margin-top: 10px; text-align: center; }
+        .text-indeferido { color: #dc3545; } 
+        .text-adotado { color: #198754; } 
+        .text-andamento { color: #fd7e14; }
+        /* Estilo para card indisponível mas visível */
+        .card-indisponivel { opacity: 0.9; border: 2px solid #fd7e14; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav class="navbar navbar-expand-md navbar-light">
+            <div class="container">
+                <img src="/resources/img/logo.png" alt="Logo" width="120" height="50" class="d-inline-block align-text-top">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="menuNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="home.html">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="quemsomos.html">Quem Somos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="adote.html">Adote</a></li>
+                        <li class="nav-item"><a class="nav-link" href="doar.html">Doar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="parceiros.html">Parceiros</a></li>
+                        <li class="nav-item"><a class="nav-link" href="portal.html">Portal da Transparência</a></li>
+                    </ul>
+                    <div id="auth-actions"></div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container-principal">
+            <section>
+                <h1>Adote nossos animais</h1>
+                <p>Nosso objetivo é promover o bem-estar animal e facilitar a adoção responsável.</p>
+            </section>
+            
+            <div id="status-mensagem" class="text-center my-4">Carregando animais...</div>
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="animais-container">
+                </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Animais do Bem. Todos os direitos reservados.</p>
+        <p>Contato: <a href="mailto:contato@animaisdobem.org">animaisdobem@ifsp.edu.br</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const API_BASE = 'http://localhost:8080/adocao';
+        // 🛠️ MUDANÇA CRUCIAL: Buscamos TODOS os animais, não só os disponíveis
+        const API_TODOS_ANIMAIS = `${API_BASE}/animais`; 
+        const API_ADOCOES = `${API_BASE}/adocoes`;
+
+        let usuarioAtual = null;
+        let minhasAdocoes = []; 
+
+        // --- 1. AUTENTICAÇÃO ---
+        function logout() {
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = 'home.html'; 
+        }
+
+        function checkLoginStatus() {
+            const usuarioJSON = localStorage.getItem('usuarioLogado');
+            if (usuarioJSON) {
+                try {
+                    usuarioAtual = JSON.parse(usuarioJSON);
+                    renderNavbar(usuarioAtual);
+                    carregarMinhasAdocoes(); // Se logado, busca histórico
+                } catch (e) {
+                    localStorage.removeItem('usuarioLogado'); 
+                    renderLoginButton();
+                    carregarAnimais(); // Se erro, carrega normal (deslogado)
+                }
+            } else {
+                renderLoginButton();
+                carregarAnimais(); // Se não logado, carrega normal
+            }
+        }
+
+        function renderNavbar(usuario) {
+            document.getElementById('auth-actions').innerHTML = `
+                <div class="dropdown">
+                    <button class="btn btn-login dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i> ${usuario.nome}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="perfil.html">Atualizar Perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="logout()">Sair</a></li>
+                    </ul>
+                </div>`;
+            window.logout = logout;
+        }
+
+        function renderLoginButton() {
+            document.getElementById('auth-actions').innerHTML = `<div><a class="btn btn-login me-2" href="login.html">Login</a></div>`;
+        }
+
+        // --- 2. DADOS DE ADOÇÃO ---
+
+        async function carregarMinhasAdocoes() {
+            try {
+                const response = await fetch(`${API_ADOCOES}/usuario/${usuarioAtual.idUsuario}`);
+                if (response.ok) {
+                    minhasAdocoes = await response.json();
+                }
+            } catch (error) {
+                console.error("Erro ao buscar histórico:", error);
+            } finally {
+                carregarAnimais(); // Carrega a lista após ter o histórico
+            }
+        }
+
+        // --- 3. RENDERIZAÇÃO DOS ANIMAIS (Lógica Atualizada) ---
+
+        async function carregarAnimais() {
+            const container = document.getElementById('animais-container');
+            const statusDiv = document.getElementById('status-mensagem');
+            container.innerHTML = '';
+            
+            try {
+                // Busca TODOS os animais do banco (disponíveis e indisponíveis)
+                const response = await fetch(API_TODOS_ANIMAIS);
+                if (!response.ok) throw new Error('Falha ao buscar animais.');
+                const todosAnimais = await response.json();
+
+                // 🧠 FILTRAGEM INTELIGENTE NO FRONTEND
+                const animaisParaExibir = todosAnimais.filter(animal => {
+                    // 1. Se o animal está disponível (status = true), mostre para todos.
+                    if (animal.status === true) return true;
+
+                    // 2. Se não está disponível, verifique se EU tenho uma adoção vinculada a ele.
+                    const minhaAdocao = minhasAdocoes.find(a => a.idAnimal === animal.idAnimal);
+                    if (minhaAdocao) return true;
+
+                    // 3. Se não está disponível e não é meu, esconde (foi adotado por outro).
+                    return false;
+                });
+
+                if (animaisParaExibir.length === 0) {
+                    statusDiv.innerHTML = `<div class="alert alert-info">Nenhum animal encontrado no momento.</div>`;
+                    return;
+                }
+                statusDiv.style.display = 'none';
+
+                animaisParaExibir.forEach(animal => {
+                    container.innerHTML += renderAnimalCard(animal);
+                });
+
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            }
+        }
+
+        function renderAnimalCard(animal) {
+            const adocaoExistente = minhasAdocoes.find(a => a.idAnimal === animal.idAnimal);
+            let actionArea = '';
+            let cardClass = '';
+
+            // Lógica dos Botões
+            if (!usuarioAtual) {
+                actionArea = `<a href="login.html" class="btn btn-success btn-adotar">Faça Login para Adotar</a>`;
+            } else if (adocaoExistente) {
+                // Usuário já tem vínculo com este animal
+                if (adocaoExistente.status === 'Em Andamento') {
+                    cardClass = 'card-indisponivel'; // Destaque visual
+                    actionArea = `
+                        <span class="status-text text-andamento">Adoção em Andamento</span>
+                        <button class="btn btn-outline-danger btn-sm w-100 mt-1" onclick="desistirAdocao(${adocaoExistente.idAdocao})">Desistir da Adoção</button>
+                    `;
+                } else if (adocaoExistente.status === 'Deferido') {
+                    actionArea = `<span class="status-text text-adotado">✅ Adotado por você!</span>`;
+                } else if (adocaoExistente.status === 'Indeferido') {
+                    actionArea = `<span class="status-text text-indeferido">❌ Adoção Indeferida</span>`;
+                }
+            } else {
+                // Disponível e sem vínculo (Botão normal)
+                if (animal.status === true) {
+                    actionArea = `<button class="btn btn-success btn-adotar" onclick="solicitarAdocao(${animal.idAnimal})">Quero Adotar!</button>`;
+                } else {
+                    // Caso raro: Indisponível mas passou no filtro (não deveria acontecer pela lógica, mas por segurança)
+                    actionArea = `<span class="text-muted">Indisponível</span>`;
+                }
+            }
+
+            const vermifugado = animal.vermifugado ? 'Sim' : 'Não';
+            const vacina = animal.vacinadoGripe ? 'Sim' : 'Não';
+            const dataEntrada = animal.dataEntrada ? animal.dataEntrada.split('-').reverse().join('/') : 'N/D';
+
+            return `
+                <div class="col">
+                    <figure class="perfil-animal h-100 p-0 shadow-sm ${cardClass}">
+                        <figcaption>
+                            <h2 class="h5 mb-2">${animal.nomeAnimal} (${animal.sexo})</h2>
+                            <hr class="my-2">
+                            <p class="mb-1"><strong>Espécie:</strong> ${animal.especie}</p>
+                            <p class="mb-1"><strong>Raça:</strong> ${animal.raca}</p>
+                            <p class="mb-1"><strong>Idade:</strong> ${animal.idade} anos</p>
+                            <p class="mb-1"><strong>Peso:</strong> ${animal.peso} kg</p>
+                            <p class="mb-1 text-muted"><small>Entrada: ${dataEntrada}</small></p>
+                            <hr class="my-2">
+                            <p class="mb-1"><small>Vermi: ${vermifugado} / Vacina: ${vacina}</small></p>
+                            <div class="mt-3 pt-2 border-top">
+                                ${actionArea}
+                            </div>
+                        </figcaption>
+                    </figure>
+                </div>
+            `;
+        }
+
+        // --- 4. AÇÕES DE ADOÇÃO ---
+
+        async function solicitarAdocao(idAnimal) {
+            if (!confirm("Confirmar solicitação de adoção?")) return;
+
+            const dados = {
+                idUsuario: usuarioAtual.idUsuario,
+                idAnimal: idAnimal,
+                // Data removida para ser gerada no backend
+                status: 'Em Andamento'
+            };
+
+            try {
+                const response = await fetch(API_ADOCOES, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                if (response.ok) {
+                    alert("Solicitação enviada com sucesso!");
+                    carregarMinhasAdocoes(); // Recarrega tudo para atualizar o estado
+                } else {
+                    const erro = await response.json();
+                    alert(`Erro: ${erro.error}`);
+                }
+            } catch (e) {
+                alert("Erro de conexão: " + e.message);
+            }
+        }
+
+        async function desistirAdocao(idAdocao) {
+            if (!confirm("Tem certeza que deseja desistir desta adoção?")) return;
+
+            try {
+                const response = await fetch(`${API_ADOCOES}/${idAdocao}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert("Adoção cancelada.");
+                    carregarMinhasAdocoes(); // Recarrega para liberar o animal visualmente
+                } else {
+                    alert("Erro ao cancelar adoção.");
+                }
+            } catch (e) {
+                alert("Erro de conexão: " + e.message);
+            }
+        }
+
+        // INICIALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+    </script>
+</body>
+</html>

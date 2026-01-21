@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quem Somos? - Animais do Bem</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-md navbar-light">
+            <div class="container">
+                <img src="/resources/img/logo.png" alt="Logo" width="120" height="50" class="d-inline-block align-text-top">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNav" aria-controls="menuNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="menuNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="home.html">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="quemsomos.html">Quem Somos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="adote.html">Adote</a></li>
+                        <li class="nav-item"><a class="nav-link" href="doar.html">Doar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="parceiros.html">Parceiros</a></li>
+                        <li class="nav-item"><a class="nav-link" href="portal.html">Portal da Transparência</a></li>
+                    </ul>
+                    <div id="auth-actions">
+                        </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container-principal">
+            <h1>Quem somos?</h1>
+            <p class="text-justify">
+            Somos o Animais do Bem, um projeto criado para dar amor, cuidado e novas chances aos animais que precisam. 
+            Por trás deste projeto, estão a Ana, a Letícia e o Thiago, que acreditam que cada vida importa. Nosso propósito
+            é conectar histórias: de um lado, os animais que precisam de um lar; do outro, pessoas dispostas a transformar 
+            vidas. Nosso objetivo é incentivar a adoção responsável, apoiar ações de resgate e cuidados, e garantir que cada 
+            pet tenha a oportunidade de viver com dignidade e carinho. Acreditamos que pequenas atitudes geram grandes 
+            mudanças, por isso buscamos unir quem se importa, quem quer ajudar e quem acredita que fazer o bem também é 
+            coisa de quem ama os animais
+            </p>
+
+            <img src="../resources/img/IMG_6020.jpeg" alt="Foto de Ana Maria, Leticia e Thiago" class="img-fluid my-3">
+
+            <hr>
+            <section id="conheca" class="my-5">
+                <h2>Conheça um pouco mais sobre o Projeto</h2>
+                <div class="video-container mt-3">
+                    <video autoplay muted loop playsinline class="video-player">
+                        <source src="../resources/video/Sejam bem-vindos a.mp4" type="video/mp4">
+                        Seu navegador não suporta vídeos.
+                    </video>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="text-center mt-5 mb-3">
+        <p>&copy; 2025 Animais do Bem. Todos os direitos reservados.</p>
+        <p>Contato: <a href="mailto:contato@animaisdobem.org">animaisdobem@ifsp.edu.br</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        /**
+         * Função para realizar o logout: remove o usuário do localStorage e recarrega a página.
+         */
+        function logout() {
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = 'home.html'; 
+        }
+
+        /**
+         * Renderiza o menu de usuário logado (dropdown).
+         */
+        function renderLoggedUser(usuario) {
+            const authActionsDiv = document.getElementById('auth-actions');
+            
+            // Renderiza o menu dropdown com o nome e opções de perfil/sair
+            authActionsDiv.innerHTML = `
+                <div class="dropdown">
+                    <button class="btn btn-login dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle me-1"></i> ${usuario.nome}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+                        <li><a class="dropdown-item" href="perfil.html">
+                            <i class="bi bi-gear-fill me-2"></i> Atualizar Perfil
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="logout()">
+                            <i class="bi bi-box-arrow-right me-2"></i> Sair
+                        </a></li>
+                    </ul>
+                </div>
+            `;
+            window.logout = logout; 
+        }
+
+        /**
+         * Renderiza o botão de login padrão.
+         */
+        function renderLoginButton() {
+            const authActionsDiv = document.getElementById('auth-actions');
+            authActionsDiv.innerHTML = `
+                <div>
+                    <a class="btn btn-login me-2" href="login.html">Login</a>
+                </div>
+            `;
+        }
+
+        /**
+         * Checa o status do login no localStorage e renderiza a navbar apropriadamente.
+         */
+        function checkLoginStatus() {
+            const usuarioJSON = localStorage.getItem('usuarioLogado');
+            
+            if (usuarioJSON) {
+                try {
+                    const usuario = JSON.parse(usuarioJSON);
+                    
+                    // Renderiza o menu de perfil para todos os usuários logados
+                    renderLoggedUser(usuario);
+                    
+                } catch (e) {
+                    console.error("Erro ao parsear o usuário do localStorage:", e);
+                    localStorage.removeItem('usuarioLogado'); 
+                    renderLoginButton();
+                }
+            } else {
+                renderLoginButton();
+            }
+        }
+
+        // Inicia a verificação de login no carregamento da página
+        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+    </script>
+</body>
+</html>

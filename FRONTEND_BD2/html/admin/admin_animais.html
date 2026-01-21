@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Animais - Admin</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Estilos de Layout para Sidebar Fixa e Main Full Height */
+        .container-admin { display: flex; min-height: 100vh; background-color: #f7eee3; }
+        .admin-sidebar { width: 250px; background-color: #e75d8b; color: white; padding: 20px 0; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .admin-content { flex-grow: 1; padding: 30px; text-align: left; margin-left: 250px; min-height: 100vh; background-color: #f7eee3; }
+        .admin-sidebar h2 { color: white; font-family: 'Sour Gummy'; text-align: center; margin-bottom: 30px; padding: 0 10px; }
+        .admin-sidebar ul { list-style: none; padding: 0; }
+        .admin-sidebar ul li a { display: block; padding: 15px 20px; text-decoration: none; color: white; font-weight: bold; font-family: 'Nunito', Arial, sans-serif; transition: background-color 0.3s ease; }
+        .admin-sidebar ul li a:hover, .admin-sidebar ul li.active a { background-color: #e43a72; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container-admin">
+        
+        <aside class="admin-sidebar">
+            <h2>Gestão de Animais</h2>
+            <nav>
+                <ul>
+                    <li><a href="admin_dashboard.html">Visão Geral</a></li>
+                    <li class="active"><a href="admin_animais.html">Gerenciar Animais</a></li>
+                    <li><a href="admin_usuarios.html">Gerenciar Usuários</a></li>
+                    <li><a href="admin_eventos_portal.html">Eventos/Portal</a></li>
+                    <li><a href="#" onclick="logout()">Sair</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <h1 class="titulo-login">Gerenciar Animais</h1>
+
+            <section class="admin-form-container mb-5">
+                <h2>Buscar e Filtrar Animais</h2>
+                <form id="form-filtrar-animais" class="d-flex justify-content-center flex-wrap">
+                    <input type="text" id="nome-busca" class="form-control me-2 mb-2" placeholder="Nome do Animal" style="max-width: 200px;">
+                    <select id="especie-busca" class="form-select me-2 mb-2" style="max-width: 150px;">
+                        <option value="">Todas Espécies</option>
+                        <option value="Cachorro">Cachorro</option>
+                        <option value="Gato">Gato</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                    <button type="submit" class="btn btn-secondary ms-2 mb-2">Filtrar</button>
+                    <button type="button" class="btn btn-secondary ms-2 mb-2" onclick="listarTodosAnimais()">Listar Todos</button>
+                </form>
+                <div id="busca-status" class="mt-3" style="color: blue;"></div>
+            </section>
+
+            <section class="admin-table-container">
+                <h2>Animais Encontrados</h2>
+                <table id="tabela-animais" class="tabela-eventos mx-auto">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Espécie</th>
+                            <th>Porte</th>
+                            <th>Disponível</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+
+            <section class="admin-form-container mb-5">
+                <h2><span id="form-titulo">Cadastrar Novo Animal</span></h2>
+                <form id="form-animal" class="login-form p-4 mx-auto">
+                    <input type="hidden" id="id-animal" name="idAnimal">
+                    <input type="hidden" id="status-original" value="true">
+
+                    <div class="campo">
+                        <label for="nomeAnimal">Nome:</label>
+                        <input type="text" id="nomeAnimal" name="nomeAnimal" required>
+                    </div>
+                    <div class="campo">
+                        <label for="raca">Raça:</label>
+                        <input type="text" id="raca" name="raca" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="especie">Espécie:</label>
+                        <select id="especie" name="especie" class="form-select" required>
+                            <option value="Cachorro">Cachorro</option>
+                            <option value="Gato">Gato</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="porte">Porte:</label>
+                        <select id="porte" name="porte" class="form-select" required>
+                            <option value="Pequeno">Pequeno</option>
+                            <option value="Médio">Médio</option>
+                            <option value="Grande">Grande</option>
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label for="idade">Idade:</label>
+                        <input type="number" id="idade" name="idade" min="0" required>
+                    </div>
+                    <div class="campo">
+                        <label for="peso">Peso (kg):</label>
+                        <input type="number" id="peso" name="peso" step="0.1" min="0.1" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="sexo">Sexo:</label>
+                        <select id="sexo" name="sexo" class="form-select" required>
+                            <option value="M">Macho</option>
+                            <option value="F">Fêmea</option>
+                        </select>
+                    </div>
+                    
+                    <div class="campo">
+                        <label for="vermifugado">Vermifugado:</label>
+                        <select id="vermifugado" name="vermifugado" class="form-select">
+                            <option value="true">Sim</option>
+                            <option value="false">Não</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="vacinadoGripe">Vacinado:</label>
+                        <select id="vacinadoGripe" name="vacinadoGripe" class="form-select">
+                            <option value="true">Sim</option>
+                            <option value="false">Não</option>
+                        </select>
+                    </div>
+                    
+                    <div class="campo">
+                        <label for="doenca">Doença:</label>
+                        <input type="text" id="doenca" name="doenca" placeholder="Nenhuma">
+                    </div>
+                    <div class="acoes">
+                        <button type="submit" class="btn">Salvar</button>
+                        <button type="reset" class="btn" onclick="resetFormulario()">Cancelar/Novo</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/adocao'; 
+        const API_ANIMAIS = `${API_BASE_URL}/animais`;
+
+        function logout() {
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = '../login.html';
+        }
+
+        function checkAdmin() {
+            const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+            if (!usuarioLogado || usuarioLogado.tipoUsuario !== 'administrador') {
+                alert('Acesso negado. Redirecionando para login.');
+                window.location.href = 'login.html';
+            }
+        }
+
+        function resetFormulario() {
+            document.getElementById('form-animal').reset();
+            document.getElementById('id-animal').value = '';
+            document.getElementById('form-titulo').textContent = 'Cadastrar Novo Animal';
+            // Reseta status oculto para true (novo animal é disponível por padrão)
+            document.getElementById('status-original').value = 'true';
+        }
+
+        function exibirResultado(data) {
+            const tbody = document.querySelector('#tabela-animais tbody');
+            tbody.innerHTML = '';
+            const resultados = Array.isArray(data) ? data : (data && !data.error ? [data] : []);
+            document.getElementById('busca-status').textContent = `${resultados.length} animal(is) encontrado(s).`;
+
+            if (resultados.length === 0) return;
+
+            resultados.forEach(animal => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = animal.idAnimal;
+                row.insertCell().textContent = animal.nomeAnimal;
+                row.insertCell().textContent = animal.especie;
+                row.insertCell().textContent = animal.porte;
+                row.insertCell().textContent = animal.status ? 'Sim' : 'Não'; // Exibe status mas não edita
+                
+                const acoesCell = row.insertCell();
+                acoesCell.innerHTML = `
+                    <button class="btn btn-sm btn-primary me-2" onclick="prepararEdicao(${animal.idAnimal})">Editar</button>
+                    <button class="btn btn-sm btn-danger" onclick="deletarAnimal(${animal.idAnimal})">Deletar</button>
+                `;
+            });
+        }
+        
+        async function buscarAnimais(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Erro ${response.status}: Falha na requisição.`);
+                const data = await response.json();
+                exibirResultado(data);
+            } catch (error) {
+                document.getElementById('busca-status').textContent = `Erro: ${error.message}`;
+            }
+        }
+
+        function listarTodosAnimais() { buscarAnimais(API_ANIMAIS); }
+
+        async function deletarAnimal(id) {
+            if (!confirm(`Tem certeza que deseja deletar o animal ID ${id}?`)) return;
+            try {
+                const response = await fetch(`${API_ANIMAIS}/${id}`, { method: 'DELETE' });
+                if (response.ok) { alert(`Animal ID ${id} deletado!`); listarTodosAnimais(); }
+                else { const erro = await response.json(); alert(`Erro: ${erro.error}`); }
+            } catch (error) { alert(`Erro: ${error.message}`); }
+        }
+
+        async function prepararEdicao(id) {
+            try {
+                const response = await fetch(`${API_ANIMAIS}/${id}`);
+                const animal = await response.json();
+                if (animal.error) throw new Error(animal.error);
+
+                document.getElementById('id-animal').value = animal.idAnimal;
+                document.getElementById('nomeAnimal').value = animal.nomeAnimal;
+                document.getElementById('raca').value = animal.raca;
+                document.getElementById('especie').value = animal.especie;
+                document.getElementById('porte').value = animal.porte;
+                document.getElementById('idade').value = animal.idade;
+                document.getElementById('peso').value = animal.peso;
+                document.getElementById('sexo').value = animal.sexo;
+                document.getElementById('vermifugado').value = animal.vermifugado ? 'true' : 'false';
+                document.getElementById('vacinadoGripe').value = animal.vacinadoGripe ? 'true' : 'false';
+                document.getElementById('doenca').value = animal.doenca;
+                
+                // Guarda o status atual no campo oculto para enviar de volta no PUT
+                document.getElementById('status-original').value = animal.status ? 'true' : 'false';
+
+                document.getElementById('form-titulo').textContent = `Editar Animal ID ${animal.idAnimal}`;
+                document.getElementById('form-animal').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) { alert(`Erro ao buscar: ${error.message}`); }
+        }
+        
+        document.getElementById('form-animal').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const id = document.getElementById('id-animal').value;
+            const isEditing = id !== '';
+            const method = isEditing ? 'PUT' : 'POST';
+            const url = isEditing ? `${API_ANIMAIS}/${id}` : API_ANIMAIS;
+            
+            const data = {
+                idAnimal: id ? parseInt(id) : undefined,
+                nomeAnimal: document.getElementById('nomeAnimal').value,
+                raca: document.getElementById('raca').value,
+                especie: document.getElementById('especie').value,
+                porte: document.getElementById('porte').value,
+                idade: parseInt(document.getElementById('idade').value),
+                peso: parseFloat(document.getElementById('peso').value),
+                sexo: document.getElementById('sexo').value,
+                vermifugado: document.getElementById('vermifugado').value === 'true',
+                vacinadoGripe: document.getElementById('vacinadoGripe').value === 'true',
+                doenca: document.getElementById('doenca').value,
+                // Usa o status original (se editando) ou true (se criando)
+                status: document.getElementById('status-original').value === 'true'
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    alert(`Animal ${isEditing ? 'atualizado' : 'criado'} com sucesso!`);
+                    resetFormulario();
+                    listarTodosAnimais();
+                } else {
+                    const erro = await response.json();
+                    alert(`Falha: ${erro.error}`);
+                }
+            } catch (error) { alert(`Erro de conexão: ${error.message}`); }
+        });
+
+        document.getElementById('form-filtrar-animais').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const nome = document.getElementById('nome-busca').value;
+            const especie = document.getElementById('especie-busca').value;
+            let searchUrl = API_ANIMAIS + '?';
+            if (nome) searchUrl += `nome=${encodeURIComponent(nome)}&`;
+            if (especie) searchUrl += `especie=${encodeURIComponent(especie)}&`;
+            searchUrl = searchUrl.replace(/&$/, "").replace(/\?$/, "");
+            buscarAnimais(searchUrl);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdmin();
+            listarTodosAnimais();
+        });
+    </script>
+</body>
+</html>

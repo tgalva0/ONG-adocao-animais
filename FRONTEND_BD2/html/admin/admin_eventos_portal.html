@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Eventos e Portal - Admin</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Estilo para as abas */
+        .tab-button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            cursor: pointer;
+            border: none;
+            background-color: #f7e8d0;
+            color: #e75d8b;
+            font-weight: bold;
+            border-radius: 5px 5px 0 0;
+            transition: background-color 0.3s;
+        }
+
+        .tab-button.active {
+            background-color: #e75d8b;
+            color: white;
+        }
+        
+        .tab-content {
+            border: 1px solid #e75d8b;
+            padding: 20px;
+            border-radius: 0 10px 10px 10px;
+            background-color: white;
+            min-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-admin">
+        
+        <aside class="admin-sidebar">
+            <h2>Gestão de Registros</h2>
+            <nav>
+                <ul>
+                    <li><a href="admin_dashboard.html">Visão Geral</a></li>
+                    <li><a href="admin_animais.html">Gerenciar Animais</a></li>
+                    <li><a href="admin_usuarios.html">Gerenciar Usuários</a></li>
+                    <li class="active"><a href="admin_eventos_portal.html">Eventos/Portal</a></li>
+                    <li><a href="#" onclick="logout()">Sair</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <h1 class="titulo-login">Gerenciar Eventos e Registros de Portal</h1>
+
+            <div>
+                <button class="tab-button active" data-target="eventos">Eventos</button>
+                <button class="tab-button" data-target="portal">Portal da Transparência</button>
+            </div>
+
+            <div id="tab-container" class="mt-3">
+                
+                <div id="eventos" class="tab-content">
+                    <h2>Gestão de Eventos</h2>
+                    <div id="eventos-status" class="mb-3" style="color: blue;"></div>
+
+                    <section class="admin-form-container p-4 mb-4 mx-auto">
+                        <h3><span id="form-evento-titulo">Criar Novo Evento</span></h3>
+                        <form id="form-evento" class="login-form">
+                            <input type="hidden" id="id-evento" name="idEvento">
+
+                            <div class="campo">
+                                <label for="nomeEvento">Nome:</label>
+                                <input type="text" id="nomeEvento" name="nomeEvento" required>
+                            </div>
+
+                            <div class="campo">
+                                <label for="dataEvento">Data:</label>
+                                <input type="date" id="dataEvento" name="dataEvento" required>
+                            </div>
+
+                            <div class="campo">
+                                <label for="descricaoEvento">Descrição:</label>
+                                <textarea id="descricaoEvento" name="descricao" rows="3" required></textarea>
+                            </div>
+
+                            <div class="acoes">
+                                <button type="submit" class="btn">Salvar Evento</button>
+                                <button type="reset" class="btn" onclick="resetFormulario('evento')">Cancelar</button>
+                            </div>
+                        </form>
+                    </section>
+
+                    <table id="tabela-eventos" class="tabela-eventos mx-auto">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Data</th>
+                                <th>Criador (ID)</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+
+                <div id="portal" class="tab-content" style="display: none;">
+                    <h2>Gestão de Registros Financeiros</h2>
+                    <div id="portal-status" class="mb-3" style="color: blue;"></div>
+
+                    <section class="admin-form-container p-4 mb-4 mx-auto">
+                        <h3><span id="form-portal-titulo">Criar Novo Registro Financeiro</span></h3>
+                        <form id="form-portal" class="login-form">
+                            <input type="hidden" id="id-portal" name="idPortal">
+
+                            <div class="campo">
+                                <label for="dataRegistro">Data da Entrada:</label>
+                                <input type="date" id="dataRegistro" name="dataRegistro" required>
+                            </div>
+
+                            <div class="campo">
+                                <label for="valorRacao">Gasto c/ Ração (R$):</label>
+                                <input type="number" id="valorRacao" name="valorRacao" step="0.01" min="0" required>
+                            </div>
+
+                            <div class="campo">
+                                <label for="valorAgua">Gasto c/ Água (R$):</label>
+                                <input type="number" id="valorAgua" name="valorAgua" step="0.01" min="0" required>
+                            </div>
+
+                            <div class="campo">
+                                <label for="valorVacina">Gasto c/ Vacina (R$):</label>
+                                <input type="number" id="valorVacina" name="valorVacina" step="0.01" min="0" required>
+                            </div>
+                            
+                            <div class="acoes">
+                                <button type="submit" class="btn">Salvar Registro</button>
+                                <button type="reset" class="btn" onclick="resetFormulario('portal')">Cancelar</button>
+                            </div>
+                        </form>
+                    </section>
+
+                    <table id="tabela-portal" class="tabela-eventos mx-auto">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Data</th>
+                                <th>Ração (R$)</th>
+                                <th>Água (R$)</th>
+                                <th>Vacina (R$)</th>
+                                <th>Criador (ID)</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/adocao';
+        const API_EVENTOS = `${API_BASE_URL}/eventos`;
+        const API_PORTAL = `${API_BASE_URL}/portal`;
+        let activeTab = 'eventos';
+
+        // --- FUNÇÃO CRUCIAL: RECUPERA ID DO USUÁRIO LOGADO ---
+        function getUserId() {
+            const user = localStorage.getItem('usuarioLogado');
+            if (user) {
+                return JSON.parse(user).idUsuario;
+            }
+            return null;
+        }
+
+        // --- FUNÇÕES DE UTILIDADE ---
+        function logout() {
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = '../login.html';
+        }
+
+        function checkAdmin() {
+            const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+            if (!usuarioLogado || usuarioLogado.tipoUsuario !== 'administrador') {
+                window.location.href = 'login.html';
+            }
+        }
+
+        function resetFormulario(type) {
+            if (type === 'evento') {
+                document.getElementById('form-evento').reset();
+                document.getElementById('id-evento').value = '';
+                document.getElementById('form-evento-titulo').textContent = 'Criar Novo Evento';
+            } else if (type === 'portal') {
+                document.getElementById('form-portal').reset();
+                document.getElementById('id-portal').value = '';
+                document.getElementById('form-portal-titulo').textContent = 'Criar Novo Registro Financeiro';
+            }
+        }
+
+        // --- FUNÇÕES DE INTERFACE (TABS) ---
+        function switchTab(targetTab) {
+            activeTab = targetTab;
+            document.querySelectorAll('.tab-content').forEach(div => {
+                div.style.display = 'none';
+            });
+            document.getElementById(targetTab).style.display = 'block';
+
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.tab-button[data-target="${targetTab}"]`).classList.add('active');
+
+            if (targetTab === 'eventos') {
+                listarRegistros('evento');
+            } else if (targetTab === 'portal') {
+                listarRegistros('portal');
+            }
+        }
+        
+        // --- FUNÇÕES DE DADOS (CRUD GERAL) ---
+
+        async function fetchAndRender(type, endpoint, successCallback) {
+            const statusElement = document.getElementById(`${type}-status`);
+            
+            if (statusElement) {
+                statusElement.textContent = 'Buscando dados...'; 
+            }
+
+            try {
+                const response = await fetch(endpoint);
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({error: 'Erro desconhecido na resposta.'}));
+                    if (statusElement) {
+                        statusElement.textContent = `Erro ${response.status}: ${errorData.error || 'Falha ao buscar dados.'}`;
+                    }
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (statusElement) {
+                    statusElement.textContent = `${data.length} registro(s) encontrado(s).`;
+                }
+                
+                successCallback(data);
+
+            } catch (error) {
+                if (statusElement) {
+                    statusElement.textContent = `Erro de rede: ${error.message}`;
+                } else {
+                    console.error(`Erro de rede: ${error.message}. Elemento de status para ${type} não encontrado.`);
+                }
+            }
+        }
+
+        function listarRegistros(type) {
+            const endpoint = type === 'evento' ? API_EVENTOS : API_PORTAL;
+            const tabelaId = type === 'evento' ? 'tabela-eventos' : 'tabela-portal';
+            
+            fetchAndRender(type, endpoint, (data) => {
+                const tbody = document.querySelector(`#${tabelaId} tbody`);
+                tbody.innerHTML = '';
+                
+                data.forEach(item => {
+                    const row = tbody.insertRow();
+                    const id = type === 'evento' ? item.idEvento : item.idPortal;
+                    const dateField = type === 'evento' ? item.dataEvento : item.dataRegistro;
+                    
+                    row.insertCell().textContent = id;
+                    row.insertCell().textContent = dateField;
+                    
+                    if (type === 'evento') {
+                        // Colunas para Evento
+                        row.insertCell().textContent = item.nomeEvento;
+                        row.insertCell().textContent = item.idUsuario;
+                    } else { 
+                        // Colunas para Portal (Financeiro)
+                        row.insertCell().textContent = `R$ ${item.valorRacao.toFixed(2)}`;
+                        row.insertCell().textContent = `R$ ${item.valorAgua.toFixed(2)}`;
+                        row.insertCell().textContent = `R$ ${item.valorVacina.toFixed(2)}`;
+                        row.insertCell().textContent = item.idUsuario;
+                    }
+                    
+                    const acoesCell = row.insertCell();
+                    acoesCell.innerHTML = `
+                        <button class="btn btn-sm btn-primary me-2" onclick="prepararEdicao('${type}', ${id})">Editar</button>
+                        <button class="btn btn-sm btn-danger" onclick="deletarRegistro('${type}', ${id})">Deletar</button>
+                    `;
+                });
+            });
+        }
+        
+        async function deletarRegistro(type, id) {
+            if (!confirm(`Tem certeza que deseja deletar o registro ID ${id} (${type})?`)) return;
+
+            const endpoint = type === 'evento' ? `${API_EVENTOS}/${id}` : `${API_PORTAL}/${id}`;
+
+            try {
+                const response = await fetch(endpoint, { method: 'DELETE' });
+
+                if (response.ok) {
+                    alert('Registro deletado com sucesso!');
+                    listarRegistros(type);
+                } else {
+                    const erro = await response.json();
+                    alert(`Erro ao deletar: ${erro.error || 'Verifique se há chaves estrangeiras vinculadas.'}`);
+                }
+            } catch (error) {
+                alert(`Erro de conexão ao deletar: ${error.message}`);
+            }
+        }
+        
+        async function prepararEdicao(type, id) {
+            const endpoint = type === 'evento' ? `${API_EVENTOS}/${id}` : `${API_PORTAL}/${id}`;
+            
+            try {
+                const response = await fetch(endpoint);
+                const item = await response.json();
+                
+                if (item.error) throw new Error(item.error);
+
+                if (type === 'evento') {
+                    document.getElementById('id-evento').value = id;
+                    document.getElementById('form-evento-titulo').textContent = `Editar Evento ID ${id}`;
+                    document.getElementById('nomeEvento').value = item.nomeEvento;
+                    document.getElementById('dataEvento').value = item.dataEvento; 
+                    document.getElementById('descricaoEvento').value = item.descricao;
+                    document.getElementById('form-evento').scrollIntoView({ behavior: 'smooth' });
+                } else { 
+                    document.getElementById('id-portal').value = id;
+                    document.getElementById('form-portal-titulo').textContent = `Editar Registro ID ${id}`;
+                    document.getElementById('dataRegistro').value = item.dataRegistro;
+                    
+                    // Preenche os novos campos financeiros
+                    document.getElementById('valorRacao').value = item.valorRacao;
+                    document.getElementById('valorAgua').value = item.valorAgua;
+                    document.getElementById('valorVacina').value = item.valorVacina;
+                    
+                    document.getElementById('form-portal').scrollIntoView({ behavior: 'smooth' });
+                }
+                
+            } catch (error) {
+                alert(`Erro ao buscar dados para edição: ${error.message}`);
+            }
+        }
+
+
+        // --- EVENT LISTENERS GERAIS ---
+        
+        // Listener para os botões de aba
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                switchTab(button.getAttribute('data-target'));
+            });
+        });
+
+        // Listener para Formulário de EVENTOS (POST/PUT)
+        document.getElementById('form-evento').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('id-evento').value;
+            const isEditing = id !== '';
+            const method = isEditing ? 'PUT' : 'POST';
+            const url = isEditing ? `${API_EVENTOS}/${id}` : API_EVENTOS;
+            const userId = getUserId(); 
+
+            if (!userId) { alert('Erro: Usuário logado não encontrado.'); return; }
+
+            const data = {
+                nomeEvento: document.getElementById('nomeEvento').value,
+                dataEvento: document.getElementById('dataEvento').value,
+                descricao: document.getElementById('descricaoEvento').value,
+                idUsuario: userId 
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    document.getElementById('eventos-status').textContent = `Evento ${isEditing ? 'atualizado' : 'criado'} com sucesso! (Recarregando lista...)`;
+                    
+                    setTimeout(() => {
+                        resetFormulario('evento');
+                        listarRegistros('evento'); 
+                    }, 300);
+
+                } else {
+                    const erro = await response.json();
+                    alert(`Falha: ${erro.error || 'Erro desconhecido.'}`);
+                    document.getElementById('eventos-status').textContent = `Falha: ${erro.error}`;
+                }
+            } catch (error) {
+                alert(`Erro de conexão ao salvar: ${error.message}`);
+            }
+        });
+
+        // Listener para Formulário do PORTAL (POST/PUT)
+        document.getElementById('form-portal').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('id-portal').value;
+            const isEditing = id !== '';
+            const method = isEditing ? 'PUT' : 'POST';
+            const url = isEditing ? `${API_PORTAL}/${id}` : API_PORTAL;
+            const userId = getUserId(); 
+
+            if (!userId) { alert('Erro: Usuário logado não encontrado.'); return; }
+            
+            const data = {
+                dataRegistro: document.getElementById('dataRegistro').value,
+                // Captura e converte os novos campos de valor
+                valorRacao: parseFloat(document.getElementById('valorRacao').value),
+                valorAgua: parseFloat(document.getElementById('valorAgua').value),
+                valorVacina: parseFloat(document.getElementById('valorVacina').value),
+                idUsuario: userId 
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    document.getElementById('portal-status').textContent = `Registro do Portal ${isEditing ? 'atualizado' : 'criado'} com sucesso! (Recarregando lista...)`;
+                    
+                    setTimeout(() => {
+                        resetFormulario('portal');
+                        listarRegistros('portal');
+                    }, 300);
+
+                } else {
+                    const erro = await response.json();
+                    alert(`Falha: ${erro.error || 'Erro desconhecido.'}`);
+                    document.getElementById('portal-status').textContent = `Falha: ${erro.error}`;
+                }
+            } catch (error) {
+                alert(`Erro de conexão ao salvar: ${error.message}`);
+            }
+        });
+
+
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdmin();
+            switchTab('eventos'); 
+        });
+    </script>
+</body>
+</html>

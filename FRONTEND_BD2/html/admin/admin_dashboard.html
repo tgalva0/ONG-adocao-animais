@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Animais do Bem</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+<body>
+    <div class="container-admin">
+        
+        <aside class="admin-sidebar">
+            <h2>Dashboard Admin</h2>
+            <nav>
+                <ul>
+                    <li class="active"><a href="admin_dashboard.html">Visão Geral</a></li>
+                    <li><a href="admin_animais.html">Gerenciar Animais</a></li>
+                    <li><a href="admin_usuarios.html">Gerenciar Usuários</a></li>
+                    <li><a href="admin_eventos_portal.html">Eventos/Portal</a></li>
+                    <li><a href="#" onclick="logout()">Sair</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <h1 class="titulo-login">Visão Geral do Sistema</h1>
+            
+            <div class="admin-stats-container">
+                <div class="stat-card">
+                    <h3>Animais para Adoção</h3>
+                    <p id="total-animais">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Adoções Registradas</h3>
+                    <p id="total-adocoes">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Usuários Ativos</h3>
+                    <p id="total-usuarios">0</p>
+                </div>
+            </div>
+
+            <section class="admin-table-container">
+                <h2>Últimas Adoções</h2>
+                <table class="tabela-eventos">
+                    <thead>
+                        <tr>
+                            <th>ID Adoção</th>
+                            <th>Animal</th>
+                            <th>Adotante</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+    
+        function logout() {
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = '../login.html';
+        }
+
+        const API_BASE_URL = 'http://localhost:8080/adocao';
+
+        function checkAdmin() {
+            const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+            if (!usuarioLogado || usuarioLogado.tipoUsuario !== 'administrador') {
+                alert('Acesso negado. Redirecionando para login.');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        async function carregarEstatisticas() {
+            const statsUrl = `${API_BASE_URL}/dashboard/stats`;
+            try {
+                const response = await fetch(statsUrl);
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('total-animais').textContent = stats.totalAnimais;
+                    document.getElementById('total-adocoes').textContent = stats.totalAdocoes;
+                    document.getElementById('total-usuarios').textContent = stats.totalUsuarios;
+                    
+                } else {
+                    console.error("Falha ao carregar estatísticas:", response.status);
+                    document.getElementById('total-animais').textContent = '—';
+                }
+            } catch (error) {
+                console.error('Erro de rede ao buscar estatísticas:', error);
+                document.getElementById('total-animais').textContent = 'ERRO';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdmin(); 
+            carregarEstatisticas(); 
+        });
+    </script>
+</body>
+</html>
