@@ -70,4 +70,3 @@ Este projeto é de uso acadêmico. Sinta-se à vontade para realizar forks e con
 
 ---
 Desenvolvido por **Thiago Galvão**
-🔗 [Seu LinkedIn] | 📧 [Seu Email]
